@@ -8,11 +8,12 @@ session_start();
 </head>
 <body>
 <br>
-<h1>Upload Large Tab Delimited File</h1>
+<h1>Get and Upload Geonames Database</h1>
 <p> This Php Script Will Import very large CSV files to MYSQL database in a minute</p>
 
 </br>
 <form class="form-horizontal"action="" method="post">
+
     <div class="form-group">
         <label for="mysql" class="control-label col-xs-2">Mysql Server address (or)<br>Host name</label>
         <div class="col-xs-3">
@@ -47,9 +48,18 @@ session_start();
     <div class="form-group">
         <label for="csvfile" class="control-label col-xs-2">Name of the file</label>
         <div class="col-xs-3">
-            <input type="name" class="form-control" name="csv" id="csv" value="allCountries.txt">
+            <input type="name" class="form-control" name="csv" id="csv" placeholder="allCountries.txt">
         </div>
         eg. allCountries.txt
+    </div>
+    <div class="form-group">
+        <label for="csvtab" class="control-label col-xs-2">CSV or Tab Delimited</label>
+        <div class="col-xs-3">
+            <select name="csvtab" id="csvtab">
+                <option value="csv">CSV</option>
+                <option value="tab">TAB</option>
+            </select>
+        </div>
     </div>
     <div class="form-group">
         <label for="login" class="control-label col-xs-2"></label>
@@ -58,7 +68,7 @@ session_start();
         </div>
     </div>
 </form>
-</div>
+
 
 </body>
 
@@ -88,22 +98,39 @@ if(isset($_POST['username'])&&isset($_POST['mysql'])&&isset($_POST['db'])&&isset
     $db=$_POST['db'];
     $_SESSION['db'] = $db;
 
+    $csvtab=$_POST['csvtab'];
+    $_SESSION['csvtab'] = $csvtab;
+
     $file=$_POST['csv'];
     $cons= mysqli_connect("$sqlname", "$username","$password","$db") or die(mysql_error());
 
     $result1=mysqli_query($cons,"select count(*) count from $table");
     $r1=mysqli_fetch_array($result1);
     $count1=(int)$r1['count'];
-    //If the fields in CSV are not seperated by comma(,)  replace comma(,) in the below query with that  delimiting character
-    //If each tuple in CSV are not seperated by new line.  replace \n in the below query  the delimiting character which seperates two tuples in csv
-    // for more information about the query http://dev.mysql.com/doc/refman/5.1/en/load-data.html
-    mysqli_query($cons, '
-    LOAD DATA LOCAL INFILE "'.$file.'"
-        INTO TABLE '.$table.'
-        FIELDS TERMINATED by \'T\'
-        LINES TERMINATED BY \'\n\' 
-')or die(mysql_error());
-    /* @todo query not working, but worked previously with csv */
+
+    if ( 'csv' === $csvtab) {
+        //If the fields in CSV are not seperated by comma(,)  replace comma(,) in the below query with that  delimiting character
+        //If each tuple in CSV are not seperated by new line.  replace \n in the below query  the delimiting character which seperates two tuples in csv
+        // for more information about the query http://dev.mysql.com/doc/refman/5.1/en/load-data.html
+        mysqli_query( $cons, '
+        LOAD DATA LOCAL INFILE "' . $file . '"
+        INTO TABLE ' . $table . '
+        FIELDS TERMINATED by \',\'
+        ENCLOSED BY \'"\'
+        LINES TERMINATED BY \'\n\'
+        IGNORE 1 LINES' )
+        or die( mysql_error() );
+    } else {
+        mysqli_query( $cons, '
+        LOAD DATA LOCAL INFILE "' . $file . '"
+        INTO TABLE ' . $table . '
+        FIELDS TERMINATED by \'t\'
+        ENCLOSED BY \'"\'
+        LINES TERMINATED BY \'\n\'
+        IGNORE 1 LINES' )
+        or die( mysql_error() );
+        /* @todo query not working, but worked previously with csv */
+    }
 
     $result2=mysqli_query($cons,"select count(*) count from $table");
     $r2=mysqli_fetch_array($result2);

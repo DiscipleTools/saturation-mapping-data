@@ -34,3 +34,16 @@ WHERE feature_code != 'PPLF'
 	AND feature_class = 'P' 
 	AND country_code = 'US'
 ```
+
+
+#### Geonames Master Complete Records DB
+This includes all admin areas, continents, and earth. Both as feature_class 'A' and 'P'.
+
+```$xslt
+SELECT * FROM dt_geonames 
+WHERE 
+	( feature_class = 'A' OR feature_class = 'P' OR feature_class = 'L' )
+	AND ( feature_code LIKE 'ADM%' OR feature_code LIKE 'PLC%' OR feature_code LIKE 'PPLA%' OR feature_code = 'PPLC' OR feature_code = 'CONT' OR geonameid = '6295630' ) 
+	AND feature_code NOT LIKE '%D' 
+	AND feature_code NOT LIKE '%H'
+```
