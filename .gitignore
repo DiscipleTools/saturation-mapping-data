@@ -1,0 +1,9 @@
+/build/*.csv
+/1.upload/*.csv
+/1.upload/*.txt
+/3.build/*.csv
+/3.build/*.txt
+/3.build/dt_geonames/*.csv
+/3.build/dt_geonames/*.zip
+/3.build/dt_geonames_polygons/*.csv
+/3.build/dt_geonames_polygons/*.zip
